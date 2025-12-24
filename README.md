@@ -1,7 +1,3 @@
-Here’s a **clean, simple, point-wise `README.md`** you can directly use for your project 👇
-(I’ve written it in a **resume/GitHub-friendly** and **easy-to-understand** way.)
-
----
 
 # 📝 Todo Web Application (Go + HTML)
 
