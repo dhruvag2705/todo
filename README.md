@@ -129,15 +129,6 @@ todo/
 
 ---
 
-## 📌 Future Enhancements
-
-* JWT-based authentication
-* Password hashing & security improvements
-* Responsive UI using CSS/JS
-* Deployment on cloud (AWS/GCP)
-
----
-
 ## 👤 Author
 
 **Dhruva**
