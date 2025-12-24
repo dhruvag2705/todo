@@ -140,10 +140,8 @@ todo/
 
 ## 👤 Author
 
-**Dhruva G**
-Aspiring Backend & Full-Stack Developer
+**Dhruva**
 
----
 
 If you want, I can also:
 
