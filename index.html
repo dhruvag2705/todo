@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Todo - Login</title>
+<style>
+  body { 
+    font-family:Arial,sans-serif; 
+    background:#111; 
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    margin:0;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  
+  .card { 
+    background:#1f1f1f; 
+    padding:26px; 
+    border-radius:12px;
+    width:100%;
+    max-width:340px;
+    box-shadow:0 6px 18px rgba(0,0,0,.6);
+  }
+  
+  h2 {
+    text-align:center;
+    margin:0 0 16px 0;
+  }
+  
+  input { 
+    width:100%; 
+    padding:10px; 
+    margin:7px 0;
+    border-radius:6px; 
+    border:1px solid #333;
+    background:#eee; 
+    color:#000;
+    box-sizing: border-box;
+  }
+  
+  button { 
+    width:100%; 
+    padding:10px; 
+    margin-top:10px;
+    border:none; 
+    border-radius:6px; 
+    cursor:pointer;
+    font-size: 15px;
+  }
+  
+  .btn-login { background:#28a745; color:#fff; }
+  .btn-signup { background:#007bff; color:#fff; }
+  
+  .msg { 
+    margin-top:10px; 
+    text-align:center; 
+    font-size:14px; 
+  }
+  
+  .error { color:#ff6b6b }
+  .success { color:#9bffb3 }
+  
+  .small { 
+    font-size:13px; 
+    margin-top:8px; 
+    text-align:center; 
+    color:#bbb;
+  }
+  
+  .small a {
+    color: #00ff7f;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  
+  .hidden { display:none; }
+
+  /* Mobile Responsive */
+  @media (max-width: 480px) {
+    body {
+      padding: 10px;
+    }
+
+    .card {
+      padding: 20px;
+      max-width: 100%;
+    }
+
+    h2 {
+      font-size: 22px;
+    }
+
+    input {
+      font-size: 16px;
+    }
+
+    button {
+      font-size: 16px;
+      padding: 12px;
+    }
+
+    .msg {
+      font-size: 13px;
+    }
+
+    .small {
+      font-size: 12px;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .card {
+      padding: 15px;
+    }
+
+    h2 {
+      font-size: 20px;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="card">
+
+  <!-- LOGIN VIEW -->
+  <div id="loginView">
+    <h2>Login</h2>
+    <input id="username" placeholder="Username" autocomplete="username">
+    <input id="password" type="password" placeholder="Password" autocomplete="current-password">
+    <button id="loginBtn" class="btn-login">Login</button>
+    <div id="msg" class="msg"></div>
+    <div class="small">
+      New here? <a onclick="showSignup()">Create account</a>
+    </div>
+  </div>
+
+  <!-- SIGNUP VIEW -->
+  <div id="signupView" class="hidden">
+    <h2>Signup</h2>
+    <input id="su_username" placeholder="Choose username" autocomplete="username">
+    <input id="su_email" type="email" placeholder="Enter email" autocomplete="email">
+    <input id="su_password" type="password" placeholder="Password" autocomplete="new-password">
+    <button id="signupBtn" class="btn-signup">Signup</button>
+    <div id="su_msg" class="msg"></div>
+    <div class="small">
+      Already registered? <a onclick="showLogin()">Login</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const API_BASE = "http://localhost:8080";
+const LOGIN_URL = API_BASE + "/api/login";
+const SIGNUP_URL = API_BASE + "/api/signup";
+
+const loginView = document.getElementById("loginView");
+const signupView = document.getElementById("signupView");
+const msg = document.getElementById("msg");
+const su_msg = document.getElementById("su_msg");
+
+document.getElementById("loginBtn").addEventListener("click", login);
+document.getElementById("signupBtn").addEventListener("click", signup);
+
+// Add Enter key support for login
+document.getElementById("username").addEventListener("keypress", (e) => {
+  if (e.key === "Enter") login();
+});
+document.getElementById("password").addEventListener("keypress", (e) => {
+  if (e.key === "Enter") login();
+});
+
+// Add Enter key support for signup
+document.getElementById("su_username").addEventListener("keypress", (e) => {
+  if (e.key === "Enter") signup();
+});
+document.getElementById("su_email").addEventListener("keypress", (e) => {
+  if (e.key === "Enter") signup();
+});
+document.getElementById("su_password").addEventListener("keypress", (e) => {
+  if (e.key === "Enter") signup();
+});
+
+function showSignup() {
+  loginView.classList.add("hidden");
+  signupView.classList.remove("hidden");
+  // Clear login form
+  document.getElementById("username").value = "";
+  document.getElementById("password").value = "";
+  msg.textContent = "";
+}
+
+function showLogin() {
+  signupView.classList.add("hidden");
+  loginView.classList.remove("hidden");
+  // Clear signup form
+  document.getElementById("su_username").value = "";
+  document.getElementById("su_email").value = "";
+  document.getElementById("su_password").value = "";
+  su_msg.textContent = "";
+}
+
+async function login() {
+  msg.textContent = ""; 
+  msg.className = "msg";
+
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value;
+  
+  console.log("Login attempt - Username:", username, "Password length:", password.length);
+  
+  if (!username || !password) {
+    msg.textContent = "Enter username & password"; 
+    msg.classList.add("error"); 
+    return;
+  }
+
+  try {
+    const res = await fetch(LOGIN_URL, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({ username, password })
+    });
+    const body = await res.json().catch(()=>null);
+
+    if (!res.ok) {
+      msg.textContent = body?.message || "Invalid credentials";
+      msg.classList.add("error");
+      return;
+    }
+
+    localStorage.setItem("token", body.token);
+    msg.textContent = "Login successful — redirecting...";
+    msg.classList.add("success");
+    setTimeout(()=>window.location.href="home.html",600);
+
+  } catch (err) {
+    console.error("Login error:", err);
+    msg.textContent="Server error"; 
+    msg.classList.add("error");
+  }
+}
+
+async function signup() {
+  su_msg.textContent=""; 
+  su_msg.className="msg";
+
+  const username = document.getElementById("su_username").value.trim();
+  const email = document.getElementById("su_email").value.trim();
+  const password = document.getElementById("su_password").value;
+
+  console.log("Signup attempt - Username:", username, "Email:", email, "Password length:", password.length);
+
+  if (!username || !email || !password) {
+    su_msg.textContent="All fields required";
+    su_msg.classList.add("error"); 
+    return;
+  }
+
+  try {
+    const payload = { username, password };
+    console.log("Sending payload:", payload);
+    console.log("JSON string:", JSON.stringify(payload));
+    
+    const res = await fetch(LOGIN_URL, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify(payload)
+    });
+    const body = await res.json().catch(()=>null);
+
+    if (!res.ok) {
+      su_msg.textContent = (body && body.message) || "Signup failed";
+      su_msg.classList.add("error"); 
+      return;
+    }
+
+    su_msg.textContent="Signup successful — please login";
+    su_msg.classList.add("success");
+    setTimeout(showLogin,1000);
+
+  } catch (err) {
+    console.error("Signup error:", err);
+    su_msg.textContent="Server error"; 
+    su_msg.classList.add("error");
+  }
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Todo - Home</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body {
+      font-family: Arial;
+      background: #121212;
+      color: rgb(246, 242, 242);
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Navbar - Matching progress.html */
+    nav {
+      background: #1f1f1f;
+      padding: 15px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    nav h3 {
+      color: #00ff7f;
+      margin: 0;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin: 0 12px;
+      font-size: 16px;
+    }
+    nav a:hover {
+      color: #00ff7f;
+    }
+    .logout-btn {
+      background: #d63b3b;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      border: none;
+    }
+    .logout-btn:hover {
+      background: #ff4d4d;
+    }
+
+    /* Content Area */
+    .content {
+      padding: 40px 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      nav {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px;
+      }
+
+      nav h3 {
+        font-size: 18px;
+      }
+
+      nav div {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+      }
+
+      nav a {
+        margin: 0 8px;
+        font-size: 14px;
+      }
+
+      .content {
+        padding: 20px 15px;
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      input {
+        width: 100%;
+        margin-right: 0;
+      }
+
+      button[type="submit"] {
+        width: 100%;
+      }
+
+      #taskList .task {
+        padding: 12px;
+      }
+
+      #taskList .task > div:last-child {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      button {
+        flex: 1;
+        min-width: 100px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      nav h3 {
+        font-size: 16px;
+      }
+
+      h2 {
+        font-size: 20px;
+      }
+
+      .content {
+        padding: 15px 10px;
+      }
+    }
+
+    h2 {
+      color: #00ff7f;
+      margin-bottom: 20px;
+    }
+
+    /* Form Styling */
+    form {
+      margin-bottom: 30px;
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 8px;
+    }
+
+    input {
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #444;
+      background: #2b2b2b;
+      color: white;
+      margin-right: 10px;
+      font-size: 14px;
+    }
+
+    input::placeholder {
+      color: #888;
+    }
+
+    button[type="submit"] {
+      padding: 10px 20px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      background: #00a86b;
+      color: white;
+      font-size: 14px;
+    }
+
+    button[type="submit"]:hover {
+      background: #00ff7f;
+    }
+
+    /* Task List */
+    #taskList .task {
+      background: #1e1e1e;
+      padding: 15px;
+      border: 1px solid #2b2b2b;
+      margin: 10px 0;
+      border-radius: 8px;
+    }
+
+    #taskList .task b {
+      color: #00ff7f;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 6px 12px;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+      margin-right: 5px;
+      font-size: 13px;
+    }
+
+    .btn-red {
+      background: #d63b3b;
+      color: #fff;
+    }
+
+    .btn-red:hover {
+      background: #ff4d4d;
+    }
+
+    .btn-green {
+      background: #00a86b;
+      color: #fff;
+    }
+
+    .btn-green:hover {
+      background: #00ff7f;
+    }
+
+    .small {
+      font-size: 13px;
+      color: #aaa;
+      margin-left: 10px;
+    }
+
+    #info {
+      color: #555;
+      margin: 10px 0;
+      font-size: 14px;
+    }
+
+    .no-tasks {
+      text-align: center;
+      color: #555;
+      font-size: 16px;
+      padding: 40px 20px;
+      font-style: italic;
+    }
+
+    /* Custom Confirmation Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-box {
+      background: #1e1e1e;
+      padding: 25px;
+      border-radius: 10px;
+      border: 2px solid #2b2b2b;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    @media (max-width: 480px) {
+      .modal-box {
+        padding: 20px;
+        width: 85%;
+      }
+
+      .modal-title {
+        font-size: 18px;
+      }
+
+      .modal-message {
+        font-size: 14px;
+      }
+
+      .modal-btn {
+        padding: 8px 16px;
+        font-size: 13px;
+      }
+    }
+
+    .modal-title {
+      color: #00ff7f;
+      font-size: 20px;
+      margin-bottom: 15px;
+      font-weight: bold;
+    }
+
+    .modal-message {
+      color: #fff;
+      margin-bottom: 25px;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .modal-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .modal-btn-cancel {
+      background: #555;
+      color: white;
+    }
+
+    .modal-btn-cancel:hover {
+      background: #666;
+    }
+
+    .modal-btn-confirm {
+      background: #d63b3b;
+      color: white;
+    }
+
+    .modal-btn-confirm:hover {
+      background: #ff4d4d;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar - Matching progress.html exactly -->
+  <nav>
+    <h3>Todo App</h3>
+    <div>
+      <a href="home.html" style="color:#00ff7f;">Home</a>
+      <a href="progress.html">Progress</a>
+      <a href="profile.html">Profile</a>
+      <button class="logout-btn" id="logoutBtn">Logout</button>
+    </div>
+  </nav>
+
+  <div class="content">
+    <h2>My ToDos</h2>
+
+    <form id="addForm">
+      <input id="title" placeholder="Title" required>
+      <input id="due_date" type="date" required>
+      <button type="submit" class="btn-green">Add Task</button>
+    </form>
+    
+    <p id="info" class="small"></p>
+    <div id="taskList"></div>
+  </div>
+
+  <!-- Custom Confirmation Modal -->
+  <div id="confirmModal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-title">Confirm Deletion</div>
+      <div class="modal-message">Are you sure you want to delete this task?</div>
+      <div class="modal-buttons">
+        <button class="modal-btn modal-btn-cancel" onclick="closeModal()">Cancel</button>
+        <button class="modal-btn modal-btn-confirm" onclick="confirmDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  const API_BASE = "http://localhost:8080";
+  const TASKS_URL = API_BASE + "/api/tasks";
+
+  const token = localStorage.getItem("token");
+  if (!token) window.location.href = "index.html";
+
+  const info = document.getElementById("info");
+  const taskList = document.getElementById("taskList");
+  const confirmModal = document.getElementById("confirmModal");
+  
+  let deleteTaskId = null; // Store task ID to delete
+
+  document.getElementById("logoutBtn").onclick = () => {
+    localStorage.removeItem("token");
+    window.location.href = "index.html";
+  };
+
+  async function loadTasks() {
+    info.textContent = "Loading...";
+    try {
+      const res = await fetch(TASKS_URL, {
+        method: "GET",
+        headers: { "Authorization": "Bearer " + token }
+      });
+
+      if (res.status === 401 || res.status === 403) {
+        localStorage.removeItem("token");
+        window.location.href = "index.html";
+        return;
+      }
+
+      const tasks = await res.json();
+      renderTasks(tasks);
+      info.textContent = "";
+    } catch {
+      info.textContent = " No Added Tasks!?";
+    }
+  }
+
+  document.getElementById("addForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const title = document.getElementById("title").value.trim();
+    const due_date = document.getElementById("due_date").value;
+
+    if (!title || !due_date) return info.textContent = "Fill both fields";
+
+    const formattedDate = new Date(due_date).toISOString().split('T')[0];
+
+    try {
+      const res = await fetch(TASKS_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify({ title, dueDate: formattedDate })
+      });
+      if (!res.ok) return info.textContent = "Create failed";
+      document.getElementById("title").value = "";
+      document.getElementById("due_date").value = "";
+      await loadTasks();
+    } catch {
+      info.textContent = "Network error";
+    }
+  });
+
+  function renderTasks(tasks) {
+    taskList.innerHTML = "";
+    
+    if (tasks.length === 0) {
+      taskList.innerHTML = '<div class="no-tasks">No tasks planned</div>';
+      return;
+    }
+    
+    tasks.forEach(t => {
+      const div = document.createElement("div");
+      div.className = "task";
+      div.innerHTML = `
+        <div><b>${escapeHtml(t.title)}</b>
+        <span class="small">(Due: ${formatDate(t.dueDate)})</span></div>
+        <div class="small">Status: ${t.completed ? "Completed" : "Pending"}</div>
+        <div style="margin-top:8px">
+          <button onclick="toggle(${t.id}, ${t.completed}, '${escapeHtml(t.title)}', '${formatDate(t.dueDate)}')" class="btn-green">
+            ${t.completed ? "Mark Pending" : "Complete"}
+          </button>
+          <button onclick="showDeleteModal(${t.id})" class="btn-red">Delete</button>
+        </div>`;
+      taskList.appendChild(div);
+    });
+  }
+
+  function formatDate(d) {
+    if (!d) return "";
+    return ("" + d).split("T")[0];
+  }
+
+  function escapeHtml(s) {
+    return String(s || "").replace(/[&<>"']/g,c=>({
+      "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
+    })[c]);
+  }
+
+  async function toggle(id, completed, title, dueDate) {
+    try {
+      const res = await fetch(`${TASKS_URL}/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify({ title, dueDate, completed: !completed })
+      });
+      if (!res.ok) return info.textContent = "Update failed";
+      await loadTasks();
+    } catch {
+      info.textContent = "Network error";
+    }
+  }
+
+  // Show custom delete modal
+  function showDeleteModal(id) {
+    deleteTaskId = id;
+    confirmModal.classList.add("active");
+  }
+
+  // Close modal
+  function closeModal() {
+    confirmModal.classList.remove("active");
+    deleteTaskId = null;
+  }
+
+  // Confirm and delete task
+  async function confirmDelete() {
+    if (!deleteTaskId) return;
+    
+    try {
+      const res = await fetch(`${TASKS_URL}/${deleteTaskId}`, {
+        method: "DELETE",
+        headers: { "Authorization": "Bearer " + token }
+      });
+      if (!res.ok) return info.textContent = "Delete failed";
+      await loadTasks();
+      closeModal();
+    } catch {
+      info.textContent = "Network error";
+      closeModal();
+    }
+  }
+
+  // Close modal when clicking outside
+  confirmModal.addEventListener("click", (e) => {
+    if (e.target === confirmModal) {
+      closeModal();
+    }
+  });
+
+  loadTasks();
+  </script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<nav style="
+  background:#181818;
+  padding:14px 28px;
+  display:flex;
+  align-items:center;
+  gap:24px;
+  color:#eee;
+  font-size:17px;
+  box-shadow:0 2px 6px #0f0f0f;
+">
+
+  <span style="font-size:22px;font-weight:bold;color:#00ff66;margin-right:20px;">
+    Todo App
+  </span>
+
+  <a class="nav-item" href="home.html" style="text-decoration:none;color:#eee;">Home</a>
+  <a class="nav-item" href="progress.html" style="text-decoration:none;color:#eee;">Progress</a>
+  <a class="nav-item" href="profile.html" style="text-decoration:none;color:#eee;">Profile</a>
+
+  <span style="flex:1"></span> <!-- keeps logout aligned right -->
+
+  <button id="logoutBtn" style="
+    background:#c62828;
+    color:#fff;
+    border:none;
+    padding:7px 16px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:15px;
+  ">
+    Logout
+  </button>
+</nav>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) {
+    logoutBtn.onclick = () => {
+      localStorage.removeItem("token");
+      window.location.href = "index.html";
+    };
+  }
+
+  // Highlight active page
+  const currentPage = location.pathname.split("/").pop();
+  document.querySelectorAll(".nav-item").forEach(link => {
+    if (link.getAttribute("href") === currentPage) {
+      link.style.color = "#00ff66";
+      link.style.borderBottom = "2px solid #00ff66";
+      link.style.paddingBottom = "2px";
+    }
+  });
+});
+</script>

@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Profile</title>
+<style>
+    body {
+        font-family: Arial;
+        background: #121212;
+        color: rgb(246, 242, 242);
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Navbar - Matching progress.html and home.html */
+    nav {
+        background: #1f1f1f;
+        padding: 15px 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+    nav h3 {
+        color: #00ff7f;
+        margin: 0;
+    }
+    nav a {
+        color: white;
+        text-decoration: none;
+        margin: 0 12px;
+        font-size: 16px;
+    }
+    nav a:hover {
+        color: #00ff7f;
+    }
+    .logout-btn {
+        background: #d63b3b;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        border: none;
+    }
+    .logout-btn:hover {
+        background: #ff4d4d;
+    }
+
+    /* Profile Box */
+    .profile-box {
+        width: 450px;
+        margin: 80px auto;
+        background: #1e1e1e;
+        padding: 30px;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .profile-box h2 {
+        color: #00ff7f;
+        margin-bottom: 30px;
+    }
+
+    .profile-info {
+        background: #2b2b2b;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 6px;
+        text-align: left;
+        display: flex;
+        align-items: center;
+    }
+
+    .profile-info strong {
+        color: #00ff7f;
+        display: inline-block;
+        width: 140px;
+        flex-shrink: 0;
+    }
+
+    .profile-info span {
+        color: #fff;
+        flex: 1;
+    }
+
+    .profile-info input {
+        flex: 1;
+        background: #1e1e1e;
+        border: 1px solid #444;
+        padding: 8px 12px;
+        border-radius: 5px;
+        color: #fff;
+        font-size: 14px;
+    }
+
+    .profile-info input:focus {
+        outline: none;
+        border-color: #00ff7f;
+    }
+
+    .edit-btn {
+        margin-top: 25px;
+        background: #00a86b;
+        color: white;
+        padding: 10px 30px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 500;
+    }
+
+    .edit-btn:hover {
+        background: #00ff7f;
+    }
+
+    .action-buttons {
+        margin-top: 25px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+    }
+
+    .save-btn {
+        background: #00a86b;
+        color: white;
+        padding: 10px 30px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 500;
+    }
+
+    .save-btn:hover {
+        background: #00ff7f;
+    }
+
+    .cancel-btn {
+        background: #555;
+        color: white;
+        padding: 10px 30px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 500;
+    }
+
+    .cancel-btn:hover {
+        background: #666;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .message {
+        margin-top: 15px;
+        padding: 10px;
+        border-radius: 6px;
+        font-size: 14px;
+        text-align: center;
+    }
+
+    .message.success {
+        background: #2d5a3d;
+        color: #00ff7f;
+    }
+
+    .message.error {
+        background: #5a2d2d;
+        color: #ff6b6b;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+        nav {
+            flex-direction: column;
+            gap: 15px;
+            padding: 15px;
+        }
+
+        nav h3 {
+            font-size: 18px;
+        }
+
+        nav div {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        nav a {
+            margin: 0 8px;
+            font-size: 14px;
+        }
+
+        .profile-box {
+            width: 90%;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .profile-box h2 {
+            font-size: 22px;
+        }
+
+        .profile-info {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .profile-info strong {
+            width: 100%;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .save-btn, .cancel-btn, .edit-btn {
+            width: 100%;
+            padding: 12px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        nav h3 {
+            font-size: 16px;
+        }
+
+        .profile-box {
+            width: 95%;
+            margin: 20px auto;
+            padding: 15px;
+        }
+
+        .profile-box h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .profile-info {
+            padding: 12px;
+            margin: 10px 0;
+        }
+
+        .profile-info strong {
+            font-size: 13px;
+        }
+
+        .profile-info span,
+        .profile-info input {
+            font-size: 14px;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<!-- Navbar - Matching progress.html and home.html exactly -->
+<nav>
+    <h3>Todo App</h3>
+    <div>
+        <a href="home.html">Home</a>
+        <a href="progress.html">Progress</a>
+        <a href="profile.html" style="color:#00ff7f;">Profile</a>
+        <button class="logout-btn" onclick="logoutUser()">Logout</button>
+    </div>
+</nav>
+
+<div class="profile-box">
+    <h2>User Profile</h2>
+    
+    <!-- View Mode -->
+    <div id="viewMode">
+        <div class="profile-info">
+            <strong>Username:</strong>
+            <span id="display-username">Loading...</span>
+        </div>
+        <div class="profile-info">
+            <strong>Email:</strong>
+            <span id="display-email">Loading...</span>
+        </div>
+        <div class="profile-info">
+            <strong>Date of Birth:</strong>
+            <span id="display-dob">Loading...</span>
+        </div>
+        <div class="profile-info">
+            <strong>Member Since:</strong>
+            <span id="display-memberSince">Loading...</span>
+        </div>
+        
+        <button class="edit-btn" onclick="enableEditMode()">Edit Profile</button>
+    </div>
+
+    <!-- Edit Mode -->
+    <div id="editMode" class="hidden">
+        <div class="profile-info">
+            <strong>Username:</strong>
+            <input type="text" id="edit-username" placeholder="Enter username">
+        </div>
+        <div class="profile-info">
+            <strong>Email:</strong>
+            <input type="email" id="edit-email" placeholder="Enter email">
+        </div>
+        <div class="profile-info">
+            <strong>Date of Birth:</strong>
+            <input type="date" id="edit-dob">
+        </div>
+        <div class="profile-info">
+            <strong>Member Since:</strong>
+            <span id="edit-memberSince">N/A</span>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="save-btn" onclick="saveProfile()">Save Changes</button>
+            <button class="cancel-btn" onclick="cancelEdit()">Cancel</button>
+        </div>
+    </div>
+
+    <div id="message" class="message hidden"></div>
+</div>
+
+<script>
+// Check if user is logged in
+const token = localStorage.getItem("token");
+if (!token) {
+    window.location.href = "index.html";
+}
+
+let userData = null;
+
+// Load user profile data
+async function loadProfile() {
+    try {
+        console.log("Attempting to load profile...");
+        const res = await fetch("http://localhost:8080/api/user/profile", {
+            headers: { "Authorization": "Bearer " + token }
+        });
+
+        console.log("Response status:", res.status);
+
+        if (res.status === 401 || res.status === 403) {
+            console.error("Authentication failed - invalid token");
+            localStorage.removeItem("token");
+            window.location.href = "index.html";
+            return;
+        }
+
+        if (res.ok) {
+            userData = await res.json();
+            console.log("Profile data loaded:", userData);
+            displayProfile(userData);
+            hideMessage();
+        } else {
+            console.error("Profile endpoint error, status:", res.status);
+            const errorText = await res.text();
+            console.error("Error response:", errorText);
+            showMessage("Unable to load profile data (Status: " + res.status + ")", "error");
+        }
+    } catch (err) {
+        console.error("Profile load error:", err);
+        showMessage("Error loading profile: " + err.message, "error");
+    }
+}
+
+function displayProfile(data) {
+    document.getElementById("display-username").textContent = data.username || "N/A";
+    document.getElementById("display-email").textContent = data.email || "N/A";
+    document.getElementById("display-dob").textContent = data.dob 
+        ? formatDate(data.dob) 
+        : "Not set";
+    document.getElementById("display-memberSince").textContent = data.created_at 
+        ? formatDate(data.created_at) 
+        : "N/A";
+}
+
+function formatDate(dateString) {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+function formatDateForInput(dateString) {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0];
+}
+
+function enableEditMode() {
+    // Populate edit fields with current data
+    document.getElementById("edit-username").value = userData.username || "";
+    document.getElementById("edit-email").value = userData.email || "";
+    document.getElementById("edit-dob").value = userData.dob ? formatDateForInput(userData.dob) : "";
+    document.getElementById("edit-memberSince").textContent = userData.created_at 
+        ? formatDate(userData.created_at) 
+        : "N/A";
+
+    // Toggle views
+    document.getElementById("viewMode").classList.add("hidden");
+    document.getElementById("editMode").classList.remove("hidden");
+    hideMessage();
+}
+
+function cancelEdit() {
+    // Toggle views back
+    document.getElementById("editMode").classList.add("hidden");
+    document.getElementById("viewMode").classList.remove("hidden");
+    hideMessage();
+}
+
+async function saveProfile() {
+    const username = document.getElementById("edit-username").value.trim();
+    const email = document.getElementById("edit-email").value.trim();
+    const dob = document.getElementById("edit-dob").value;
+
+    // Validation
+    if (!username || !email) {
+        showMessage("Username and email are required", "error");
+        return;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        showMessage("Please enter a valid email address", "error");
+        return;
+    }
+
+    try {
+        const updateData = {
+            username: username,
+            email: email,
+            dob: dob || null
+        };
+
+        const res = await fetch("http://localhost:8080/api/user/profile", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token
+            },
+            body: JSON.stringify(updateData)
+        });
+
+        if (res.ok) {
+            showMessage("Profile updated successfully!", "success");
+            // Reload profile data
+            await loadProfile();
+            // Switch back to view mode after a short delay
+            setTimeout(() => {
+                cancelEdit();
+            }, 1500);
+        } else {
+            const errorData = await res.json().catch(() => null);
+            showMessage(errorData?.message || "Failed to update profile", "error");
+        }
+    } catch (err) {
+        console.error("Update error:", err);
+        showMessage("Network error. Please try again.", "error");
+    }
+}
+
+function showMessage(text, type) {
+    const msgEl = document.getElementById("message");
+    msgEl.textContent = text;
+    msgEl.className = `message ${type}`;
+    msgEl.classList.remove("hidden");
+}
+
+function hideMessage() {
+    const msgEl = document.getElementById("message");
+    msgEl.classList.add("hidden");
+}
+
+function logoutUser() {
+    localStorage.removeItem("token");
+    window.location.href = "index.html";
+}
+
+// Load profile on page load
+loadProfile();
+</script>
+
+</body>
+</html>

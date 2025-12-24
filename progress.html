@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Your Progress</title>
+<style>
+    body {
+        font-family: Arial;
+        background: #121212;
+        color: rgb(246, 242, 242);
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Navbar */
+    nav {
+        background: #1f1f1f;
+        padding: 15px 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+    nav h3 {
+        color: #00ff7f;
+        margin: 0;
+    }
+    nav a {
+        color: white;
+        text-decoration: none;
+        margin: 0 12px;
+        font-size: 16px;
+    }
+    nav a:hover {
+        color: #00ff7f;
+    }
+    .logout-btn {
+        background: #d63b3b;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        border: none;
+    }
+    .logout-btn:hover {
+        background: #ff4d4d;
+    }
+
+    .container {
+        width: 450px;
+        margin: 80px auto;
+        background: #1e1e1e;
+        padding: 25px;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    h2 { color: #00ff7f; }
+
+    .task {
+        background: #2b2b2b;
+        padding: 12px;
+        margin-top: 10px;
+        border-radius: 6px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .bar {
+        height: 16px;
+        background: #333;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 15px;
+    }
+    .bar-fill {
+        height: 100%;
+        background: #00ff7f;
+        width: 0%;
+        transition: width 0.3s ease;
+    }
+    button {
+        border: none;
+        padding: 6px 10px;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+    .done { background: #00a86b; color: white; }
+    .delete { background: #d63b3b; color: white; }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+        nav {
+            flex-direction: column;
+            gap: 15px;
+            padding: 15px;
+        }
+
+        nav h3 {
+            font-size: 18px;
+        }
+
+        nav div {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        nav a {
+            margin: 0 8px;
+            font-size: 14px;
+        }
+
+        .container {
+            width: 90%;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        h2 {
+            font-size: 22px;
+        }
+
+        .task {
+            flex-direction: column;
+            gap: 10px;
+            align-items: stretch;
+        }
+
+        .task span:first-child {
+            margin-bottom: 8px;
+        }
+
+        .task span:last-child {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        button {
+            flex: 1;
+        }
+    }
+
+    @media (max-width: 480px) {
+        nav h3 {
+            font-size: 16px;
+        }
+
+        .container {
+            width: 95%;
+            margin: 20px auto;
+            padding: 15px;
+        }
+
+        h2 {
+            font-size: 20px;
+        }
+
+        h4 {
+            font-size: 14px;
+        }
+    }
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav>
+    <h3>Todo App</h3>
+    <div>
+        <a href="home.html">Home</a>
+        <a href="progress.html" style="color:#00ff7f;">Progress</a>
+        <a href="profile.html">Profile</a>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+</nav>
+
+<div class="container">
+    <h2>Your Task Progress</h2>
+
+    <div class="bar">
+        <div id="barFill" class="bar-fill"></div>
+    </div>
+
+    <h4 id="statsText">Loading stats...</h4>
+
+    <div id="taskList">Loading tasks...</div>
+</div>
+
+<script>
+function logout() {
+    localStorage.removeItem("token");
+    window.location.href = "index.html";
+}
+
+async function loadProgress() {
+    const token = localStorage.getItem("token");
+    if (!token) return window.location.href = "index.html";
+
+    try {
+        const res = await fetch("http://localhost:8080/api/tasks", {
+            headers: { "Authorization": "Bearer " + token }
+        });
+
+        if (!res.ok) throw new Error("Failed to load tasks");
+
+        const tasks = await res.json();
+        let completedCount = tasks.filter(t => t.completed).length;
+
+        let percent = tasks.length ? (completedCount / tasks.length) * 100 : 0;
+        document.getElementById("barFill").style.width = percent + "%";
+        document.getElementById("statsText").textContent =
+            `${completedCount} of ${tasks.length} tasks completed`;
+
+        let listHTML = "";
+        tasks.forEach(t => {
+            listHTML += `
+                <div class='task'>
+                    <span>${t.title}</span>
+                    <span>
+                        ${!t.completed ?
+                        `<button class="done" onclick="markDone(${t.id})">✓ Done</button>` : ""}
+                        <button class="delete" onclick="deleteTask(${t.id})">🗑</button>
+                    </span>
+                </div>`;
+        });
+
+        document.getElementById("taskList").innerHTML = listHTML;
+
+    } catch (err) {
+        console.error(err);
+        document.getElementById("statsText").textContent = "Error loading data";
+    }
+}
+
+async function markDone(taskId) {
+    const token = localStorage.getItem("token");
+    await fetch(`http://localhost:8080/api/tasks/${taskId}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify({ completed: true })
+    });
+    loadProgress();
+}
+
+async function deleteTask(taskId) {
+    const token = localStorage.getItem("token");
+    await fetch(`http://localhost:8080/api/tasks/${taskId}`, {
+        method: "DELETE",
+        headers: { "Authorization": "Bearer " + token }
+    });
+    loadProgress();
+}
+
+loadProgress();
+</script>
+
+</body>
+</html>
