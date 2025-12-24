@@ -141,13 +141,3 @@ todo/
 ## 👤 Author
 
 **Dhruva**
-
-
-If you want, I can also:
-
-* 🔹 Make this **shorter for resume**
-* 🔹 Add **screenshots section**
-* 🔹 Convert it into **professional GitHub README**
-* 🔹 Align it exactly with **your resume project description**
-
-Just tell me 👍
