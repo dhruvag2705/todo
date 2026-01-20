@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Calendar - Todo App</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: rgb(246, 242, 242);
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Navbar */
+    nav {
+      background: #1f1f1f;
+      padding: 15px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    nav h3 {
+      color: #00ff7f;
+      margin: 0;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin: 0 12px;
+      font-size: 16px;
+    }
+    nav a:hover {
+      color: #00ff7f;
+    }
+    .logout-btn {
+      background: #d63b3b;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      border: none;
+    }
+    .logout-btn:hover {
+      background: #ff4d4d;
+    }
+
+    .content {
+      padding: 40px 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    h2 {
+      color: #00ff7f;
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 32px;
+    }
+
+    .calendar-controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+
+    .calendar-controls button {
+      background: #00a86b;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+
+    .calendar-controls button:hover {
+      background: #00ff7f;
+    }
+
+    .calendar-controls h3 {
+      color: #00ff7f;
+      margin: 0;
+      min-width: 250px;
+      text-align: center;
+      font-size: 28px;
+      font-weight: 600;
+    }
+
+    .calendar-wrapper {
+      background: #1e1e1e;
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+      background: #2b2b2b;
+      padding: 2px;
+      border-radius: 12px;
+    }
+
+    .calendar-header {
+      text-align: center;
+      font-weight: 600;
+      color: #00ff7f;
+      padding: 20px 10px;
+      background: #252525;
+      font-size: 16px;
+      letter-spacing: 0.5px;
+    }
+
+    .calendar-header:first-child {
+      border-top-left-radius: 10px;
+    }
+
+    .calendar-header:nth-child(7) {
+      border-top-right-radius: 10px;
+    }
+
+    .calendar-day {
+      min-height: 140px;
+      background: #252525;
+      padding: 12px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .calendar-day:hover {
+      background: #2d2d2d;
+      transform: scale(1.02);
+    }
+
+    .calendar-day.other-month {
+      opacity: 0.3;
+    }
+
+    .calendar-day.today {
+      background: #1a3d2e;
+      border: 2px solid #00ff7f;
+    }
+
+    .day-number {
+      font-weight: 600;
+      font-size: 20px;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+
+    .calendar-day.today .day-number {
+      color: #00ff7f;
+    }
+
+    .day-tasks {
+      font-size: 12px;
+      flex-grow: 1;
+      overflow-y: auto;
+    }
+
+    .task-item {
+      background: #1a1a1a;
+      padding: 6px 8px;
+      margin: 5px 0;
+      border-radius: 6px;
+      border-left: 3px solid #00ff7f;
+      font-size: 11px;
+      line-height: 1.4;
+      transition: all 0.2s;
+    }
+
+    .task-item:hover {
+      background: #222;
+      transform: translateX(2px);
+    }
+
+    .task-item.completed {
+      opacity: 0.5;
+      text-decoration: line-through;
+      border-left-color: #666;
+    }
+
+    .task-time {
+      color: #00ff7f;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .task-title {
+      color: #ddd;
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    #message {
+      text-align: center;
+      color: #666;
+      margin: 20px 0;
+      font-size: 16px;
+    }
+
+    .today-btn {
+      background: #2d5a3d;
+      color: #00ff7f;
+      border: 1px solid #00ff7f;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .today-btn:hover {
+      background: #3d6a4d;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 1200px) {
+      .calendar-day {
+        min-height: 120px;
+      }
+      
+      .day-number {
+        font-size: 18px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      nav {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px;
+      }
+
+      .content {
+        padding: 20px 10px;
+      }
+
+      .calendar-wrapper {
+        padding: 20px;
+      }
+
+      .calendar {
+        gap: 1px;
+        padding: 1px;
+      }
+
+      .calendar-day {
+        min-height: 100px;
+        padding: 8px;
+      }
+
+      .day-number {
+        font-size: 16px;
+      }
+
+      .day-tasks {
+        font-size: 10px;
+      }
+
+      .task-item {
+        padding: 4px 6px;
+        font-size: 10px;
+      }
+
+      .calendar-controls {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .calendar-controls h3 {
+        font-size: 22px;
+      }
+
+      .calendar-controls button {
+        padding: 10px 20px;
+        font-size: 14px;
+      }
+
+      h2 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <h3>Todo App</h3>
+    <div>
+      <a href="home.html">Home</a>
+      <a href="progress.html">Progress</a>
+      <a href="calendar.html" style="color:#00ff7f;">Calendar</a>
+      <a href="profile.html">Profile</a>
+      <button class="logout-btn" id="logoutBtn">Logout</button>
+    </div>
+  </nav>
+
+  <div class="content">
+    <h2>Task Calendar</h2>
+
+    <div class="calendar-controls">
+      <button onclick="previousMonth()">← Previous Month</button>
+      <h3 id="currentMonth">Loading...</h3>
+      <button onclick="nextMonth()">Next Month →</button>
+      <button class="today-btn" onclick="goToToday()">Today</button>
+    </div>
+
+    <div id="message"></div>
+
+    <div class="calendar-wrapper">
+      <div class="calendar">
+        <div class="calendar-header">SUN</div>
+        <div class="calendar-header">MON</div>
+        <div class="calendar-header">TUE</div>
+        <div class="calendar-header">WED</div>
+        <div class="calendar-header">THU</div>
+        <div class="calendar-header">FRI</div>
+        <div class="calendar-header">SAT</div>
+        <div id="calendarDays" style="display: contents;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  const API_BASE = "http://localhost:8080";
+  const TASKS_URL = API_BASE + "/api/tasks";
+
+  const token = localStorage.getItem("token");
+  if (!token) window.location.href = "index.html";
+
+  document.getElementById("logoutBtn").onclick = () => {
+    localStorage.removeItem("token");
+    window.location.href = "index.html";
+  };
+
+  let currentDate = new Date();
+  let allTasks = [];
+
+  async function loadTasks() {
+    try {
+      const res = await fetch(TASKS_URL, {
+        method: "GET",
+        headers: { "Authorization": "Bearer " + token }
+      });
+
+      if (res.status === 401 || res.status === 403) {
+        localStorage.removeItem("token");
+        window.location.href = "index.html";
+        return;
+      }
+
+      allTasks = await res.json();
+      renderCalendar();
+    } catch (err) {
+      console.error("Error loading tasks:", err);
+      document.getElementById("message").textContent = "Error loading tasks";
+    }
+  }
+
+  function renderCalendar() {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+
+    const monthNames = ["January", "February", "March", "April", "May", "June",
+                        "July", "August", "September", "October", "November", "December"];
+    document.getElementById("currentMonth").textContent = `${monthNames[month]} ${year}`;
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+    const calendarDaysContainer = document.getElementById("calendarDays");
+    calendarDaysContainer.innerHTML = "";
+
+    const today = new Date();
+    const isCurrentMonth = today.getMonth() === month && today.getFullYear() === year;
+    const todayDate = today.getDate();
+
+    // Previous month days
+    for (let i = firstDay - 1; i >= 0; i--) {
+      const day = daysInPrevMonth - i;
+      const dayDiv = createDayElement(day, month - 1, year, true);
+      calendarDaysContainer.appendChild(dayDiv);
+    }
+
+    // Current month days
+    for (let day = 1; day <= daysInMonth; day++) {
+      const isToday = isCurrentMonth && day === todayDate;
+      const dayDiv = createDayElement(day, month, year, false, isToday);
+      calendarDaysContainer.appendChild(dayDiv);
+    }
+
+    // Next month days
+    const totalCells = calendarDaysContainer.children.length;
+    const remainingCells = 42 - totalCells;
+    for (let day = 1; day <= remainingCells; day++) {
+      const dayDiv = createDayElement(day, month + 1, year, true);
+      calendarDaysContainer.appendChild(dayDiv);
+    }
+  }
+
+  function createDayElement(day, month, year, isOtherMonth, isToday = false) {
+    const dayDiv = document.createElement("div");
+    dayDiv.className = "calendar-day";
+    if (isOtherMonth) dayDiv.classList.add("other-month");
+    if (isToday) dayDiv.classList.add("today");
+
+    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    
+    const dayTasks = allTasks.filter(task => {
+      const taskDate = new Date(task.dueDate);
+      return taskDate.getDate() === day && 
+             taskDate.getMonth() === month && 
+             taskDate.getFullYear() === year;
+    }).sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+
+    dayDiv.innerHTML = `
+      <div class="day-number">${day}</div>
+      <div class="day-tasks">
+        ${dayTasks.map(task => {
+          const time = new Date(task.dueDate).toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: true 
+          });
+          return `<div class="task-item ${task.completed ? 'completed' : ''}">
+            <span class="task-time">${time}</span>
+            <span class="task-title">${escapeHtml(task.title)}</span>
+          </div>`;
+        }).join('')}
+      </div>
+    `;
+
+    dayDiv.onclick = () => {
+      window.location.href = `home.html?date=${dateStr}`;
+    };
+
+    return dayDiv;
+  }
+
+  function escapeHtml(s) {
+    return String(s || "").replace(/[&<>"']/g, c => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;"
+    })[c]);
+  }
+
+  function previousMonth() {
+    currentDate.setMonth(currentDate.getMonth() - 1);
+    renderCalendar();
+  }
+
+  function nextMonth() {
+    currentDate.setMonth(currentDate.getMonth() + 1);
+    renderCalendar();
+  }
+
+  function goToToday() {
+    currentDate = new Date();
+    renderCalendar();
+  }
+
+  loadTasks();
+  </script>
+
+</body>
+</html>

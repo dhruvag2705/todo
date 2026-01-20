@@ -3,8 +3,8 @@ package handlers
 import (
 	"encoding/json"
 	"log"
-	"net/http"
-	"time"
+	"net/http"		//HTTP server and request handling
+	"time"			// For time handling
 
 	"todo/models"
 

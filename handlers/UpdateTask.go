@@ -2,11 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
-	"net/http"
+	"net/http"		//HTTP server and request handling
 
 	"todo/models"
 
-	"github.com/gorilla/mux"
+	"github.com/gorilla/mux"		//
 )
 
 func UpdateTask(w http.ResponseWriter, r *http.Request) {

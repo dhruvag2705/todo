@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"encoding/json"
-	"net/http"
+	"encoding/json"		// For JSON encoding
+	"net/http"			//HTTP server and request handling
 )
 
 func jsonRes(w http.ResponseWriter, v interface{}, code int) {

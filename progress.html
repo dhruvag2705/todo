@@ -175,6 +175,7 @@
     <div>
         <a href="home.html">Home</a>
         <a href="progress.html" style="color:#00ff7f;">Progress</a>
+        <a href="calendar.html">Calendar</a>
         <a href="profile.html">Profile</a>
         <button class="logout-btn" onclick="logout()">Logout</button>
     </div>
@@ -234,7 +235,7 @@ async function loadProgress() {
 
     } catch (err) {
         console.error(err);
-        document.getElementById("statsText").textContent = "Error loading data";
+        document.getElementById("statsText").textContent = "No tasks found";
     }
 }
 

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"time"
 	"todo/models"
@@ -16,17 +17,26 @@ func CreateTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		log.Println("ERROR: JSON decode failed:", err)
 		jsonRes(w, "bad json", 400)
 		return
 	}
 
-	t := models.Task{
-		Title: body.Title,
+	log.Println("Received dueDate:", body.DueDate)
+
+	// Parse ISO 8601 format with timezone
+	parsed, err := time.Parse(time.RFC3339, body.DueDate)
+	if err != nil {
+		log.Println("ERROR: Date parse failed:", err)
+		jsonRes(w, "Invalid date format", 400)
+		return
 	}
 
-	parsed, err := time.Parse("2006-01-02", body.DueDate)
-	if err == nil {
-		t.DueDate = parsed
+	log.Println("Parsed datetime:", parsed)
+
+	t := models.Task{
+		Title:   body.Title,
+		DueDate: parsed,
 	}
 
 	err = models.DB.QueryRow(
@@ -36,9 +46,11 @@ func CreateTask(w http.ResponseWriter, r *http.Request) {
 	).Scan(&t.ID, &t.Completed)
 
 	if err != nil {
+		log.Println("ERROR: Database insert failed:", err)
 		jsonRes(w, err.Error(), 500)
 		return
 	}
 
+	log.Println("Task created successfully:", t.ID)
 	jsonRes(w, t, 200)
 }

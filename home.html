@@ -56,77 +56,31 @@
       margin: 0 auto;
     }
 
-    /* Mobile Responsive */
-    @media (max-width: 768px) {
-      nav {
-        flex-direction: column;
-        gap: 15px;
-        padding: 15px;
-      }
-
-      nav h3 {
-        font-size: 18px;
-      }
-
-      nav div {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 10px;
-      }
-
-      nav a {
-        margin: 0 8px;
-        font-size: 14px;
-      }
-
-      .content {
-        padding: 20px 15px;
-      }
-
-      form {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-      }
-
-      input {
-        width: 100%;
-        margin-right: 0;
-      }
-
-      button[type="submit"] {
-        width: 100%;
-      }
-
-      #taskList .task {
-        padding: 12px;
-      }
-
-      #taskList .task > div:last-child {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-      }
-
-      button {
-        flex: 1;
-        min-width: 100px;
-      }
+    /* Manager Info Banner */
+    .manager-info {
+      background: #1e1e1e;
+      padding: 12px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border-left: 4px solid #00ff7f;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
-    @media (max-width: 480px) {
-      nav h3 {
-        font-size: 16px;
-      }
+    .manager-info span {
+      color: #aaa;
+      font-size: 14px;
+    }
 
-      h2 {
-        font-size: 20px;
-      }
+    .manager-info strong {
+      color: #00ff7f;
+      font-size: 15px;
+      margin-left: 8px;
+    }
 
-      .content {
-        padding: 15px 10px;
-      }
+    .manager-info.no-manager {
+      border-left-color: #555;
     }
 
     h2 {
@@ -259,26 +213,6 @@
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     }
 
-    @media (max-width: 480px) {
-      .modal-box {
-        padding: 20px;
-        width: 85%;
-      }
-
-      .modal-title {
-        font-size: 18px;
-      }
-
-      .modal-message {
-        font-size: 14px;
-      }
-
-      .modal-btn {
-        padding: 8px 16px;
-        font-size: 13px;
-      }
-    }
-
     .modal-title {
       color: #00ff7f;
       font-size: 20px;
@@ -326,27 +260,125 @@
     .modal-btn-confirm:hover {
       background: #ff4d4d;
     }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      nav {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px;
+      }
+
+      nav h3 {
+        font-size: 18px;
+      }
+
+      nav div {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+      }
+
+      nav a {
+        margin: 0 8px;
+        font-size: 14px;
+      }
+
+      .content {
+        padding: 20px 15px;
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      input {
+        width: 100%;
+        margin-right: 0;
+      }
+
+      button[type="submit"] {
+        width: 100%;
+      }
+
+      #taskList .task {
+        padding: 12px;
+      }
+
+      #taskList .task > div:last-child {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      button {
+        flex: 1;
+        min-width: 100px;
+      }
+
+      .modal-box {
+        padding: 20px;
+        width: 85%;
+      }
+
+      .modal-title {
+        font-size: 18px;
+      }
+
+      .modal-message {
+        font-size: 14px;
+      }
+
+      .modal-btn {
+        padding: 8px 16px;
+        font-size: 13px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      nav h3 {
+        font-size: 16px;
+      }
+
+      h2 {
+        font-size: 20px;
+      }
+
+      .content {
+        padding: 15px 10px;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <!-- Navbar - Matching progress.html exactly -->
+  <!-- Navbar -->
   <nav>
     <h3>Todo App</h3>
     <div>
       <a href="home.html" style="color:#00ff7f;">Home</a>
       <a href="progress.html">Progress</a>
+      <a href="calendar.html">Calendar</a>
       <a href="profile.html">Profile</a>
       <button class="logout-btn" id="logoutBtn">Logout</button>
     </div>
   </nav>
 
   <div class="content">
+    <!-- Manager Info Banner -->
+    <div id="managerInfo" class="manager-info" style="display:none;">
+      <span>Reporting to: <strong id="managerName">Loading...</strong></span>
+    </div>
+
     <h2>My ToDos</h2>
 
     <form id="addForm">
       <input id="title" placeholder="Title" required>
       <input id="due_date" type="date" required>
+      <input id="due_time" type="time" placeholder="Time (optional)">
       <button type="submit" class="btn-green">Add Task</button>
     </form>
     
@@ -369,6 +401,7 @@
   <script>
   const API_BASE = "http://localhost:8080";
   const TASKS_URL = API_BASE + "/api/tasks";
+  const PROFILE_URL = API_BASE + "/api/user/profile";
 
   const token = localStorage.getItem("token");
   if (!token) window.location.href = "index.html";
@@ -377,12 +410,39 @@
   const taskList = document.getElementById("taskList");
   const confirmModal = document.getElementById("confirmModal");
   
-  let deleteTaskId = null; // Store task ID to delete
+  let deleteTaskId = null;
 
   document.getElementById("logoutBtn").onclick = () => {
     localStorage.removeItem("token");
     window.location.href = "index.html";
   };
+
+  // Load user profile to get manager info
+  async function loadUserProfile() {
+    try {
+      const res = await fetch(PROFILE_URL, {
+        headers: { "Authorization": "Bearer " + token }
+      });
+
+      if (res.ok) {
+        const profile = await res.json();
+        
+        const managerInfoDiv = document.getElementById("managerInfo");
+        const managerNameSpan = document.getElementById("managerName");
+        
+        if (profile.manager_name) {
+          managerNameSpan.textContent = profile.manager_name;
+          managerInfoDiv.style.display = "flex";
+        } else {
+          managerNameSpan.textContent = "None";
+          managerInfoDiv.classList.add("no-manager");
+          managerInfoDiv.style.display = "flex";
+        }
+      }
+    } catch (err) {
+      console.error("Error loading profile:", err);
+    }
+  }
 
   async function loadTasks() {
     info.textContent = "Loading...";
@@ -402,7 +462,7 @@
       renderTasks(tasks);
       info.textContent = "";
     } catch {
-      info.textContent = " No Added Tasks!?";
+      info.textContent = "No tasks planned!";
     }
   }
 
@@ -410,10 +470,22 @@
     e.preventDefault();
     const title = document.getElementById("title").value.trim();
     const due_date = document.getElementById("due_date").value;
+    const due_time = document.getElementById("due_time").value;
 
     if (!title || !due_date) return info.textContent = "Fill both fields";
 
-    const formattedDate = new Date(due_date).toISOString().split('T')[0];
+    // Create proper Date object and convert to ISO string
+    let dateTimeObj;
+    if (due_time) {
+      dateTimeObj = new Date(`${due_date}T${due_time}`);
+    } else {
+      dateTimeObj = new Date(`${due_date}T00:00`);
+    }
+
+    // Send as ISO 8601 format with timezone
+    const formattedDateTime = dateTimeObj.toISOString();
+
+    console.log("Sending datetime:", formattedDateTime); // Debug log
 
     try {
       const res = await fetch(TASKS_URL, {
@@ -422,11 +494,12 @@
           "Content-Type": "application/json",
           "Authorization": "Bearer " + token
         },
-        body: JSON.stringify({ title, dueDate: formattedDate })
+        body: JSON.stringify({ title, dueDate: formattedDateTime })
       });
       if (!res.ok) return info.textContent = "Create failed";
       document.getElementById("title").value = "";
       document.getElementById("due_date").value = "";
+      document.getElementById("due_time").value = "";
       await loadTasks();
     } catch {
       info.textContent = "Network error";
@@ -444,12 +517,15 @@
     tasks.forEach(t => {
       const div = document.createElement("div");
       div.className = "task";
+      
+      const dueDateTime = formatDateTime(t.dueDate);
+      
       div.innerHTML = `
         <div><b>${escapeHtml(t.title)}</b>
-        <span class="small">(Due: ${formatDate(t.dueDate)})</span></div>
+        <span class="small">(Due: ${dueDateTime})</span></div>
         <div class="small">Status: ${t.completed ? "Completed" : "Pending"}</div>
         <div style="margin-top:8px">
-          <button onclick="toggle(${t.id}, ${t.completed}, '${escapeHtml(t.title)}', '${formatDate(t.dueDate)}')" class="btn-green">
+          <button onclick="toggle(${t.id}, ${t.completed}, '${escapeHtml(t.title)}', '${t.dueDate}')" class="btn-green">
             ${t.completed ? "Mark Pending" : "Complete"}
           </button>
           <button onclick="showDeleteModal(${t.id})" class="btn-red">Delete</button>
@@ -457,6 +533,24 @@
       taskList.appendChild(div);
     });
   }
+
+  function formatDateTime(dateString) {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  
+  // Format as dd/mm/yyyy hh:mm AM/PM
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  
+  const timeStr = date.toLocaleTimeString('en-US', { 
+    hour: '2-digit', 
+    minute: '2-digit',
+    hour12: true 
+  });
+  
+  return `${day}/${month}/${year} ${timeStr}`;
+}
 
   function formatDate(d) {
     if (!d) return "";
@@ -486,19 +580,16 @@
     }
   }
 
-  // Show custom delete modal
   function showDeleteModal(id) {
     deleteTaskId = id;
     confirmModal.classList.add("active");
   }
 
-  // Close modal
   function closeModal() {
     confirmModal.classList.remove("active");
     deleteTaskId = null;
   }
 
-  // Confirm and delete task
   async function confirmDelete() {
     if (!deleteTaskId) return;
     
@@ -516,13 +607,14 @@
     }
   }
 
-  // Close modal when clicking outside
   confirmModal.addEventListener("click", (e) => {
     if (e.target === confirmModal) {
       closeModal();
     }
   });
 
+  // Load both profile and tasks on page load
+  loadUserProfile();
   loadTasks();
   </script>
 </body>

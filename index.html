@@ -32,7 +32,7 @@
     margin:0 0 16px 0;
   }
   
-  input { 
+  input, select { 
     width:100%; 
     padding:10px; 
     margin:7px 0;
@@ -79,49 +79,6 @@
   }
   
   .hidden { display:none; }
-
-  /* Mobile Responsive */
-  @media (max-width: 480px) {
-    body {
-      padding: 10px;
-    }
-
-    .card {
-      padding: 20px;
-      max-width: 100%;
-    }
-
-    h2 {
-      font-size: 22px;
-    }
-
-    input {
-      font-size: 16px;
-    }
-
-    button {
-      font-size: 16px;
-      padding: 12px;
-    }
-
-    .msg {
-      font-size: 13px;
-    }
-
-    .small {
-      font-size: 12px;
-    }
-  }
-
-  @media (max-width: 360px) {
-    .card {
-      padding: 15px;
-    }
-
-    h2 {
-      font-size: 20px;
-    }
-  }
 </style>
 </head>
 <body>
@@ -145,6 +102,9 @@
     <input id="su_username" placeholder="Choose username" autocomplete="username">
     <input id="su_email" type="email" placeholder="Enter email" autocomplete="email">
     <input id="su_password" type="password" placeholder="Password" autocomplete="new-password">
+    <select id="su_manager">
+      <option value="">Select Manager (Optional)</option>
+    </select>
     <button id="signupBtn" class="btn-signup">Signup</button>
     <div id="su_msg" class="msg"></div>
     <div class="small">
@@ -158,6 +118,7 @@
 const API_BASE = "http://localhost:8080";
 const LOGIN_URL = API_BASE + "/api/login";
 const SIGNUP_URL = API_BASE + "/api/signup";
+const USERS_URL = API_BASE + "/api/users";
 
 const loginView = document.getElementById("loginView");
 const signupView = document.getElementById("signupView");
@@ -167,15 +128,13 @@ const su_msg = document.getElementById("su_msg");
 document.getElementById("loginBtn").addEventListener("click", login);
 document.getElementById("signupBtn").addEventListener("click", signup);
 
-// Add Enter key support for login
+// Add Enter key support
 document.getElementById("username").addEventListener("keypress", (e) => {
   if (e.key === "Enter") login();
 });
 document.getElementById("password").addEventListener("keypress", (e) => {
   if (e.key === "Enter") login();
 });
-
-// Add Enter key support for signup
 document.getElementById("su_username").addEventListener("keypress", (e) => {
   if (e.key === "Enter") signup();
 });
@@ -189,20 +148,39 @@ document.getElementById("su_password").addEventListener("keypress", (e) => {
 function showSignup() {
   loginView.classList.add("hidden");
   signupView.classList.remove("hidden");
-  // Clear login form
   document.getElementById("username").value = "";
   document.getElementById("password").value = "";
   msg.textContent = "";
+  loadManagers();
 }
 
 function showLogin() {
   signupView.classList.add("hidden");
   loginView.classList.remove("hidden");
-  // Clear signup form
   document.getElementById("su_username").value = "";
   document.getElementById("su_email").value = "";
   document.getElementById("su_password").value = "";
+  document.getElementById("su_manager").value = "";
   su_msg.textContent = "";
+}
+
+async function loadManagers() {
+  try {
+    const res = await fetch(USERS_URL);
+    const users = await res.json();
+    
+    const select = document.getElementById("su_manager");
+    select.innerHTML = '<option value="">Select Manager (Optional)</option>';
+    
+    users.forEach(user => {
+      const option = document.createElement("option");
+      option.value = user.username;
+      option.textContent = user.username;
+      select.appendChild(option);
+    });
+  } catch (err) {
+    console.error("Error loading managers:", err);
+  }
 }
 
 async function login() {
@@ -211,8 +189,6 @@ async function login() {
 
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value;
-  
-  console.log("Login attempt - Username:", username, "Password length:", password.length);
   
   if (!username || !password) {
     msg.textContent = "Enter username & password"; 
@@ -253,8 +229,7 @@ async function signup() {
   const username = document.getElementById("su_username").value.trim();
   const email = document.getElementById("su_email").value.trim();
   const password = document.getElementById("su_password").value;
-
-  console.log("Signup attempt - Username:", username, "Email:", email, "Password length:", password.length);
+  const manager_username = document.getElementById("su_manager").value;
 
   if (!username || !email || !password) {
     su_msg.textContent="All fields required";
@@ -263,13 +238,14 @@ async function signup() {
   }
 
   try {
-    const payload = { username, password };
-    console.log("Sending payload:", payload);
-    console.log("JSON string:", JSON.stringify(payload));
-    
-    const res = await fetch(LOGIN_URL, {
+    const payload = { username, email, password };
+    if (manager_username) {
+      payload.manager_username = manager_username;
+    }
+
+    const res = await fetch(SIGNUP_URL, {
       method:"POST",
-      headers:{ "Content-Type":"application/json" },
+      headers:{"Content-Type":"application/json"},
       body:JSON.stringify(payload)
     });
     const body = await res.json().catch(()=>null);

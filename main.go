@@ -1,22 +1,22 @@
 package main
 
 import (
-	"log"
-	"net/http"
-	"todo/handlers"
-	"todo/models"
+	"log"	//logs for server activities
+	"net/http"	//HTTP server and request handling
+	"todo/handlers"	//handler functions for API endpoints
+	"todo/models" //database models and connection
 
-	"github.com/gorilla/mux"
+	"github.com/gorilla/mux" //router for handling HTTP routes
 )
 
 func main() {
-	models.ConnectDB()
+	models.ConnectDB() // Connect to the database
 
-	router := mux.NewRouter()
+	router := mux.NewRouter() // Create a new router
 
-	// Simple logging middleware
-	router.Use(func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	// Simple logging middleware for incoming requests
+	router.Use(func(next http.Handler) http.Handler {  //
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { //handler function 
 			log.Printf("INCOMING: %s %s\n", r.Method, r.URL.Path)
 			next.ServeHTTP(w, r)
 		})
@@ -25,6 +25,7 @@ func main() {
 	// Authentication routes
 	router.HandleFunc("/api/signup", handlers.Signup).Methods("POST")
 	router.HandleFunc("/api/login", handlers.Login).Methods("POST")
+	router.HandleFunc("/api/users", handlers.GetAllUsers).Methods("GET")		// New route to get all users
 
 	// Task routes (protected)
 	router.HandleFunc("/api/tasks", handlers.AuthMiddleware(handlers.CreateTask)).Methods("POST")

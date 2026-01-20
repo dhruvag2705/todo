@@ -3,9 +3,9 @@ package handlers
 import (
 	"encoding/json"
 	"log"
-	"net/http"
-	"time"
-	"todo/models"
+	"net/http"		//HTTP server and request handling
+	"time"			// For time handling
+	"todo/models"	//
 )
 
 func UpdateUserProfile(w http.ResponseWriter, r *http.Request) {

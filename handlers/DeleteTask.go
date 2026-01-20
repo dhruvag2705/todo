@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"net/http"
+	"net/http"    //HTTP server and request handling
 	"todo/models"
 
 	"github.com/gorilla/mux"

@@ -11,10 +11,15 @@ func GetUserProfile(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Fetching profile for user ID: %d", uid)
 
 	var user models.User
+	var managerName *string
+
+	// Get user data and their manager's name with LEFT JOIN
 	err := models.DB.QueryRow(`
-		SELECT id, username, email, dob, created_at
-		FROM users WHERE id=$1
-	`, uid).Scan(&user.ID, &user.Username, &user.Email, &user.DOB, &user.CreatedAt)
+		SELECT u.id, u.username, u.email, u.dob, u.created_at, u.manager_id, m.username
+		FROM users u
+		LEFT JOIN users m ON u.manager_id = m.id
+		WHERE u.id=$1
+	`, uid).Scan(&user.ID, &user.Username, &user.Email, &user.DOB, &user.CreatedAt, &user.ManagerID, &managerName)
 
 	if err != nil {
 		log.Printf("Database error: %v", err)
@@ -23,5 +28,20 @@ func GetUserProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Printf("User found: %+v", user)
-	jsonRes(w, user, 200)
+
+	// Create response with manager name
+	response := map[string]interface{}{
+		"id":         user.ID,
+		"username":   user.Username,
+		"email":      user.Email,
+		"dob":        user.DOB,
+		"created_at": user.CreatedAt,
+		"manager_id": user.ManagerID,
+	}
+
+	if managerName != nil {
+		response["manager_name"] = *managerName
+	}
+
+	jsonRes(w, response, 200)
 }
